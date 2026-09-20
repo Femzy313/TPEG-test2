@@ -1,16 +1,26 @@
 /* =========================================================
    TPEG KIDDIES STORE
    MAIN JAVASCRIPT
-   WhatsApp Orders + Packages + Gallery + Meta Pixel
+
+   Features:
+   - Package selection
+   - Quantity calculation
+   - Order validation
+   - EmailJS order submission
+   - Meta Pixel tracking
+   - TikTok Pixel tracking
+   - Product gallery
+   - Image lightbox
+   - Smooth scrolling
+   - Order success screen
 ========================================================= */
 
 "use strict";
 
+
 /* =========================================================
    1. STORE CONFIGURATION
 ========================================================= */
-
-const STORE_WHATSAPP_NUMBER = "2349064206119";
 
 const PRODUCT = {
     name: "Talking Flash Cards + 10-inch LCD Writing Tablet",
@@ -23,8 +33,27 @@ const PACKAGE_PRICES = {
     School: 82000
 };
 
+
 /* =========================================================
-   2. DOM HELPERS
+   2. EMAILJS CONFIGURATION
+========================================================= */
+
+const EMAILJS_CONFIG = {
+    publicKey: "BpmEAlP0p5CfXByOA",
+    serviceId: "service_f876y0m",
+    templateId: "template_1kqytul"
+};
+
+
+/* =========================================================
+   3. TIKTOK PIXEL CONFIGURATION
+========================================================= */
+
+const TIKTOK_PIXEL_ID = "DAMK8UBC77U1ARFV5U8G";
+
+
+/* =========================================================
+   4. DOM HELPERS
 ========================================================= */
 
 const $ = (selector, parent = document) =>
@@ -33,16 +62,18 @@ const $ = (selector, parent = document) =>
 const $$ = (selector, parent = document) =>
     [...parent.querySelectorAll(selector)];
 
+
 /* =========================================================
-   3. FORMAT CURRENCY
+   5. FORMAT CURRENCY
 ========================================================= */
 
 function formatNaira(amount) {
     return `₦${Number(amount || 0).toLocaleString("en-NG")}`;
 }
 
+
 /* =========================================================
-   4. PHONE HELPERS
+   6. PHONE HELPERS
 ========================================================= */
 
 function normalizePhone(phone) {
@@ -59,14 +90,16 @@ function normalizePhone(phone) {
     return value;
 }
 
+
 function isValidNigerianPhone(phone) {
     const normalized = normalizePhone(phone);
 
     return /^0[789][01]\d{8}$/.test(normalized);
 }
 
+
 /* =========================================================
-   5. PACKAGE SELECTION
+   7. PACKAGE SELECTION
 ========================================================= */
 
 function getSelectedPackage() {
@@ -89,6 +122,7 @@ function getSelectedPackage() {
     };
 }
 
+
 function getQuantity() {
     const quantityInput = $("#quantity");
 
@@ -105,8 +139,9 @@ function getQuantity() {
     return Math.min(quantity, 5);
 }
 
+
 /* =========================================================
-   6. ORDER SUMMARY
+   8. ORDER SUMMARY
 ========================================================= */
 
 function updateOrderSummary() {
@@ -117,7 +152,8 @@ function updateOrderSummary() {
         return;
     }
 
-    const total = selectedPackage.price * quantity;
+    const total =
+        selectedPackage.price * quantity;
 
     const summaryPackage =
         $("#summaryPackage");
@@ -160,8 +196,9 @@ function updateOrderSummary() {
     }
 }
 
+
 /* =========================================================
-   7. PACKAGE SELECTION EVENTS
+   9. PACKAGE SELECTION EVENTS
 ========================================================= */
 
 function setupPackageSelection() {
@@ -176,8 +213,9 @@ function setupPackageSelection() {
     });
 }
 
+
 /* =========================================================
-   8. PACKAGE CTA BUTTONS
+   10. PACKAGE CTA BUTTONS
 ========================================================= */
 
 function setupPackageCTAButtons() {
@@ -186,6 +224,7 @@ function setupPackageCTAButtons() {
 
     buttons.forEach((button) => {
         button.addEventListener("click", () => {
+
             const packageName =
                 button.dataset.package;
 
@@ -223,8 +262,9 @@ function setupPackageCTAButtons() {
     });
 }
 
+
 /* =========================================================
-   9. QUANTITY
+   11. QUANTITY
 ========================================================= */
 
 function setupQuantity() {
@@ -246,8 +286,9 @@ function setupQuantity() {
     );
 }
 
+
 /* =========================================================
-   10. FORM MESSAGE
+   12. FORM MESSAGE
 ========================================================= */
 
 function showFormMessage(
@@ -279,6 +320,7 @@ function showFormMessage(
     });
 }
 
+
 function hideFormMessage() {
     const formMessage =
         $("#formMessage");
@@ -297,11 +339,13 @@ function hideFormMessage() {
     );
 }
 
+
 /* =========================================================
-   11. FORM VALIDATION
+   13. FORM VALIDATION
 ========================================================= */
 
 function validateOrderForm() {
+
     const form =
         $("#orderForm");
 
@@ -335,7 +379,8 @@ function validateOrderForm() {
     const selectedPackage =
         getSelectedPackage();
 
-    /* Full name */
+
+    /* Full Name */
 
     if (
         !fullName ||
@@ -349,6 +394,7 @@ function validateOrderForm() {
 
         return false;
     }
+
 
     /* Phone */
 
@@ -365,6 +411,7 @@ function validateOrderForm() {
         return false;
     }
 
+
     if (
         !isValidNigerianPhone(
             phone.value
@@ -378,6 +425,7 @@ function validateOrderForm() {
 
         return false;
     }
+
 
     /* Optional WhatsApp */
 
@@ -397,6 +445,7 @@ function validateOrderForm() {
         return false;
     }
 
+
     /* State */
 
     if (
@@ -412,7 +461,8 @@ function validateOrderForm() {
         return false;
     }
 
-    /* Delivery address */
+
+    /* Delivery Address */
 
     if (
         !deliveryAddress ||
@@ -427,7 +477,8 @@ function validateOrderForm() {
         return false;
     }
 
-    /* Delivery date */
+
+    /* Delivery Date */
 
     if (
         !deliveryDate ||
@@ -442,6 +493,7 @@ function validateOrderForm() {
         return false;
     }
 
+
     /* Package */
 
     if (!selectedPackage) {
@@ -451,6 +503,7 @@ function validateOrderForm() {
 
         return false;
     }
+
 
     /* Quantity */
 
@@ -471,6 +524,7 @@ function validateOrderForm() {
         return false;
     }
 
+
     /* Confirmation */
 
     if (
@@ -489,135 +543,12 @@ function validateOrderForm() {
     return true;
 }
 
-/* =========================================================
-   12. BUILD WHATSAPP ORDER MESSAGE
-========================================================= */
-
-function buildWhatsAppOrderMessage() {
-    const fullName =
-        $("#fullName")?.value.trim() || "";
-
-    const phone =
-        normalizePhone(
-            $("#phone")?.value
-        );
-
-    const whatsapp =
-        normalizePhone(
-            $("#whatsapp")?.value
-        );
-
-    const state =
-        $("#state")?.value || "";
-
-    const deliveryAddress =
-        $("#deliveryAddress")?.value.trim() || "";
-
-    const deliveryDate =
-        $("#deliveryDate")?.value || "";
-
-    const source =
-        $("#source")?.value || "";
-
-    const selectedPackage =
-        getSelectedPackage();
-
-    const quantity =
-        getQuantity();
-
-    if (!selectedPackage) {
-        return "";
-    }
-
-    const total =
-        selectedPackage.price * quantity;
-
-    let message = "";
-
-    message +=
-        `*NEW ORDER - TPEG KIDDIES STORE*\n`;
-
-    message +=
-        `━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-    message +=
-        `*PRODUCT*\n`;
-
-    message +=
-        `${PRODUCT.name}\n\n`;
-
-    message +=
-        `*ORDER DETAILS*\n`;
-
-    message +=
-        `Package: ${selectedPackage.name}\n`;
-
-    message +=
-        `Package Price: ${formatNaira(selectedPackage.price)}\n`;
-
-    message +=
-        `Quantity: ${quantity}\n`;
-
-    message +=
-        `Total: ${formatNaira(total)}\n`;
-
-    message +=
-        `Delivery: FREE\n\n`;
-
-    message +=
-        `*CUSTOMER INFORMATION*\n`;
-
-    message +=
-        `Name: ${fullName}\n`;
-
-    message +=
-        `Phone: ${phone}\n`;
-
-    if (whatsapp) {
-        message +=
-            `WhatsApp: ${whatsapp}\n`;
-    }
-
-    message +=
-        `\n`;
-
-    message +=
-        `*DELIVERY INFORMATION*\n`;
-
-    message +=
-        `State: ${state}\n`;
-
-    message +=
-        `Address: ${deliveryAddress}\n`;
-
-    message +=
-        `Preferred Delivery: ${deliveryDate}\n`;
-
-    if (source) {
-        message +=
-            `How they heard about us: ${source}\n`;
-    }
-
-    message +=
-        `\n━━━━━━━━━━━━━━━━━━━━\n`;
-
-    message +=
-        `Payment Method: *Payment on Delivery*\n`;
-
-    message +=
-        `Customer confirmed order details: *YES*\n`;
-
-    message +=
-        `━━━━━━━━━━━━━━━━━━━━`;
-
-    return message;
-}
 
 /* =========================================================
-   13. META PIXEL
+   14. META PIXEL
 ========================================================= */
 
-function trackPixel(
+function trackMetaPixel(
     eventName,
     data = {}
 ) {
@@ -632,37 +563,71 @@ function trackPixel(
     }
 }
 
+
 /* =========================================================
-   14. VIEW CONTENT
+   15. TIKTOK PIXEL
+========================================================= */
+
+function trackTikTok(
+    eventName,
+    data = {}
+) {
+    if (
+        typeof window.ttq !== "undefined" &&
+        typeof window.ttq.track === "function"
+    ) {
+        window.ttq.track(
+            eventName,
+            data
+        );
+    }
+}
+
+
+/* =========================================================
+   16. VIEW CONTENT TRACKING
 ========================================================= */
 
 function trackViewContent() {
-    trackPixel(
+
+    const data = {
+        content_name: PRODUCT.name,
+        content_category: "Kids Educational Product",
+        content_type: "product",
+        value: PACKAGE_PRICES.Regular,
+        currency: PRODUCT.currency
+    };
+
+
+    /* Meta */
+
+    trackMetaPixel(
+        "ViewContent",
+        data
+    );
+
+
+    /* TikTok */
+
+    trackTikTok(
         "ViewContent",
         {
-            content_name:
-                PRODUCT.name,
-
-            content_category:
-                "Kids Educational Product",
-
-            content_type:
-                "product",
-
-            value:
-                PACKAGE_PRICES.Regular,
-
-            currency:
-                PRODUCT.currency
+            content_name: PRODUCT.name,
+            content_category: "Kids Educational Product",
+            content_type: "product",
+            value: PACKAGE_PRICES.Regular,
+            currency: PRODUCT.currency
         }
     );
 }
 
+
 /* =========================================================
-   15. INITIATE CHECKOUT
+   17. INITIATE CHECKOUT TRACKING
 ========================================================= */
 
 function trackInitiateCheckout() {
+
     const selectedPackage =
         getSelectedPackage();
 
@@ -676,8 +641,159 @@ function trackInitiateCheckout() {
     const total =
         selectedPackage.price * quantity;
 
-    trackPixel(
+
+    /* Meta */
+
+    trackMetaPixel(
         "InitiateCheckout",
+        {
+            content_name:
+                PRODUCT.name,
+
+            content_category:
+                "Kids Educational Product",
+
+            content_ids: [
+                selectedPackage.name
+            ],
+
+            content_type:
+                "product",
+
+            value:
+                total,
+
+            currency:
+                PRODUCT.currency,
+
+            num_items:
+                quantity
+        }
+    );
+
+
+    /* TikTok */
+
+    trackTikTok(
+        "InitiateCheckout",
+        {
+            content_id:
+                selectedPackage.name,
+
+            content_name:
+                PRODUCT.name,
+
+            content_category:
+                "Kids Educational Product",
+
+            content_type:
+                "product",
+
+            quantity:
+                quantity,
+
+            value:
+                total,
+
+            currency:
+                PRODUCT.currency
+        }
+    );
+}
+
+
+/* =========================================================
+   18. LEAD TRACKING
+========================================================= */
+
+function trackLead() {
+
+    const selectedPackage =
+        getSelectedPackage();
+
+    const quantity =
+        getQuantity();
+
+    if (!selectedPackage) {
+        return;
+    }
+
+    const total =
+        selectedPackage.price * quantity;
+
+
+    /* Meta */
+
+    trackMetaPixel(
+        "Lead",
+        {
+            content_name:
+                PRODUCT.name,
+
+            content_category:
+                "Order",
+
+            package:
+                selectedPackage.name,
+
+            value:
+                total,
+
+            currency:
+                PRODUCT.currency
+        }
+    );
+
+
+    /* TikTok */
+
+    trackTikTok(
+        "SubmitForm",
+        {
+            content_id:
+                selectedPackage.name,
+
+            content_name:
+                PRODUCT.name,
+
+            content_category:
+                "Order",
+
+            quantity:
+                quantity,
+
+            value:
+                total,
+
+            currency:
+                PRODUCT.currency
+        }
+    );
+}
+
+
+/* =========================================================
+   19. META PURCHASE
+========================================================= */
+
+function trackPurchase() {
+
+    const selectedPackage =
+        getSelectedPackage();
+
+    const quantity =
+        getQuantity();
+
+    if (!selectedPackage) {
+        return;
+    }
+
+    const total =
+        selectedPackage.price * quantity;
+
+
+    trackMetaPixel(
+        "Purchase",
         {
             content_name:
                 PRODUCT.name,
@@ -704,11 +820,13 @@ function trackInitiateCheckout() {
     );
 }
 
+
 /* =========================================================
-   16. LEAD
+   20. TIKTOK COMPLETE PAYMENT
 ========================================================= */
 
-function trackLead() {
+function trackTikTokPurchase() {
+
     const selectedPackage =
         getSelectedPackage();
 
@@ -722,17 +840,24 @@ function trackLead() {
     const total =
         selectedPackage.price * quantity;
 
-    trackPixel(
-        "Lead",
+
+    trackTikTok(
+        "CompletePayment",
         {
+            content_id:
+                selectedPackage.name,
+
             content_name:
                 PRODUCT.name,
 
             content_category:
-                "Order",
+                "Kids Educational Product",
 
-            package:
-                selectedPackage.name,
+            content_type:
+                "product",
+
+            quantity:
+                quantity,
 
             value:
                 total,
@@ -743,11 +868,13 @@ function trackLead() {
     );
 }
 
+
 /* =========================================================
-   17. CHECKOUT TRACKING
+   21. CHECKOUT TRACKING
 ========================================================= */
 
 function setupCheckoutTracking() {
+
     const orderForm =
         $("#orderForm");
 
@@ -764,9 +891,11 @@ function setupCheckoutTracking() {
         );
 
     checkoutFields.forEach((field) => {
+
         field.addEventListener(
             "focus",
             () => {
+
                 if (checkoutTracked) {
                     return;
                 }
@@ -774,22 +903,88 @@ function setupCheckoutTracking() {
                 checkoutTracked = true;
 
                 trackInitiateCheckout();
+
             },
-            { once: true }
+            {
+                once: true
+            }
         );
+
     });
 }
 
+
 /* =========================================================
-   18. FORM SUBMISSION
+   22. EMAILJS INITIALISATION
 ========================================================= */
 
-function handleOrderSubmit(event) {
-    event.preventDefault();
+function initialiseEmailJS() {
 
-    if (!validateOrderForm()) {
-        return;
+    if (
+        typeof window.emailjs === "undefined"
+    ) {
+        console.error(
+            "EmailJS SDK was not loaded."
+        );
+
+        return false;
     }
+
+    try {
+
+        window.emailjs.init({
+            publicKey:
+                EMAILJS_CONFIG.publicKey
+        });
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "EmailJS initialisation failed:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   23. BUILD EMAILJS ORDER DATA
+========================================================= */
+
+function buildEmailJSOrderData() {
+
+    const fullName =
+        $("#fullName")?.value.trim() || "";
+
+    const phone =
+        normalizePhone(
+            $("#phone")?.value
+        );
+
+    const whatsappRaw =
+        $("#whatsapp")?.value.trim() || "";
+
+    const whatsapp =
+        whatsappRaw
+            ? normalizePhone(whatsappRaw)
+            : "Not provided";
+
+    const state =
+        $("#state")?.value || "";
+
+    const deliveryAddress =
+        $("#deliveryAddress")?.value.trim() || "";
+
+    const deliveryDate =
+        $("#deliveryDate")?.value || "";
+
+    const source =
+        $("#source")?.value ||
+        "Not specified";
 
     const selectedPackage =
         getSelectedPackage();
@@ -797,37 +992,181 @@ function handleOrderSubmit(event) {
     const quantity =
         getQuantity();
 
+    if (!selectedPackage) {
+        return null;
+    }
+
     const total =
         selectedPackage.price * quantity;
 
-    /* Track checkout */
-
-    trackInitiateCheckout();
-
-    /* Build WhatsApp message */
-
-    const message =
-        buildWhatsAppOrderMessage();
-
-    if (!message) {
-        showFormMessage(
-            "Unable to create the order message. Please try again."
+    const orderDate =
+        new Date().toLocaleString(
+            "en-NG",
+            {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }
         );
 
+    return {
+
+        customer_name:
+            fullName,
+
+        phone:
+            phone,
+
+        whatsapp:
+            whatsapp,
+
+        state:
+            state,
+
+        address:
+            deliveryAddress,
+
+        delivery_date:
+            deliveryDate,
+
+        package:
+            selectedPackage.name,
+
+        package_price:
+            selectedPackage.price.toLocaleString(
+                "en-NG"
+            ),
+
+        quantity:
+            quantity,
+
+        total:
+            total.toLocaleString(
+                "en-NG"
+            ),
+
+        source:
+            source,
+
+        order_date:
+            orderDate
+    };
+}
+
+
+/* =========================================================
+   24. SEND ORDER WITH EMAILJS
+========================================================= */
+
+async function sendOrderWithEmailJS() {
+
+    if (
+        typeof window.emailjs === "undefined"
+    ) {
+        throw new Error(
+            "EmailJS is not available."
+        );
+    }
+
+    const orderData =
+        buildEmailJSOrderData();
+
+    if (!orderData) {
+        throw new Error(
+            "Unable to create order data."
+        );
+    }
+
+    const response =
+        await window.emailjs.send(
+            EMAILJS_CONFIG.serviceId,
+            EMAILJS_CONFIG.templateId,
+            orderData
+        );
+
+    return response;
+}
+
+
+/* =========================================================
+   25. SUBMIT BUTTON LOADING STATE
+========================================================= */
+
+function setSubmitButtonLoading(
+    isLoading
+) {
+
+    const form =
+        $("#orderForm");
+
+    if (!form) {
         return;
     }
 
-    /* Track Lead */
+    const submitButton =
+        form.querySelector(
+            'button[type="submit"], input[type="submit"]'
+        );
 
-    trackLead();
+    if (!submitButton) {
+        return;
+    }
 
-    /* Success information */
+
+    if (isLoading) {
+
+        submitButton.dataset.originalText =
+            submitButton.textContent;
+
+        submitButton.disabled = true;
+
+        submitButton.textContent =
+            "SUBMITTING ORDER...";
+
+        submitButton.setAttribute(
+            "aria-busy",
+            "true"
+        );
+
+    } else {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+            submitButton.dataset.originalText ||
+            "ORDER NOW AND GET FREE DELIVERY";
+
+        submitButton.removeAttribute(
+            "aria-busy"
+        );
+    }
+}
+
+
+/* =========================================================
+   26. SHOW ORDER SUCCESS
+========================================================= */
+
+function showOrderSuccess() {
+
+    const selectedPackage =
+        getSelectedPackage();
+
+    const quantity =
+        getQuantity();
+
+    if (!selectedPackage) {
+        return;
+    }
+
+    const total =
+        selectedPackage.price * quantity;
 
     const fullName =
         $("#fullName")?.value.trim() || "";
 
     const deliveryDate =
         $("#deliveryDate")?.value || "";
+
 
     const successCustomerName =
         $("#successCustomerName");
@@ -841,41 +1180,53 @@ function handleOrderSubmit(event) {
     const successDelivery =
         $("#successDelivery");
 
+
     if (successCustomerName) {
+
         successCustomerName.textContent =
             fullName;
     }
 
+
     if (successProduct) {
+
         successProduct.textContent =
             `${selectedPackage.name} × ${quantity}`;
     }
 
+
     if (successTotal) {
+
         successTotal.textContent =
             formatNaira(total);
     }
 
+
     if (successDelivery) {
+
         successDelivery.textContent =
             deliveryDate;
     }
 
-    /* Hide order section */
+
+    /* Hide order form */
 
     const orderSection =
         $("#order");
 
     if (orderSection) {
+
         orderSection.hidden = true;
     }
 
-    /* Show success section */
+
+    /* Show success */
 
     const orderSuccess =
         $("#orderSuccess");
 
     if (orderSuccess) {
+
         orderSuccess.hidden = false;
 
         orderSuccess.scrollIntoView({
@@ -883,46 +1234,123 @@ function handleOrderSubmit(event) {
             block: "start"
         });
     }
-
-    /* Create WhatsApp URL */
-
-    const whatsappURL =
-        `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(
-            message
-        )}`;
-
-    /*
-       Open WhatsApp.
-
-       The customer still needs to
-       press SEND inside WhatsApp.
-    */
-
-    setTimeout(() => {
-        const whatsappWindow =
-            window.open(
-                whatsappURL,
-                "_blank",
-                "noopener,noreferrer"
-            );
-
-        /*
-           If popup is blocked,
-           navigate directly.
-        */
-
-        if (!whatsappWindow) {
-            window.location.href =
-                whatsappURL;
-        }
-    }, 300);
 }
 
+
 /* =========================================================
-   19. NEW ORDER BUTTON
+   27. FORM SUBMISSION
+========================================================= */
+
+async function handleOrderSubmit(event) {
+
+    event.preventDefault();
+
+
+    /* Validate */
+
+    if (!validateOrderForm()) {
+        return;
+    }
+
+
+    const selectedPackage =
+        getSelectedPackage();
+
+    const quantity =
+        getQuantity();
+
+
+    if (!selectedPackage) {
+        return;
+    }
+
+
+    const total =
+        selectedPackage.price * quantity;
+
+
+    /* Prevent accidental duplicate clicks */
+
+    const submitButton =
+        event.submitter ||
+        $("#orderForm")?.querySelector(
+            'button[type="submit"]'
+        );
+
+    if (
+        submitButton &&
+        submitButton.disabled
+    ) {
+        return;
+    }
+
+
+    /* Show loading */
+
+    setSubmitButtonLoading(true);
+
+
+    try {
+
+        /* =================================================
+           STEP 1 — SEND ORDER TO EMAILJS
+        ================================================= */
+
+        await sendOrderWithEmailJS();
+
+
+        /* =================================================
+           STEP 2 — TRACK SUCCESSFUL ORDER
+           
+           These events happen ONLY after EmailJS
+           successfully accepts the order.
+        ================================================= */
+
+        trackLead();
+
+        trackPurchase();
+
+        trackTikTokPurchase();
+
+
+        /* =================================================
+           STEP 3 — SHOW SUCCESS SCREEN
+        ================================================= */
+
+        showOrderSuccess();
+
+
+    } catch (error) {
+
+        console.error(
+            "Order submission failed:",
+            error
+        );
+
+
+        /* IMPORTANT:
+           No Purchase event is fired here.
+        */
+
+        showFormMessage(
+            "We could not submit your order right now. Please check your internet connection and try again.",
+            "error"
+        );
+
+
+    } finally {
+
+        setSubmitButtonLoading(false);
+    }
+}
+
+
+/* =========================================================
+   28. NEW ORDER BUTTON
 ========================================================= */
 
 function setupNewOrderButton() {
+
     const button =
         $("#newOrderButton");
 
@@ -933,6 +1361,7 @@ function setupNewOrderButton() {
     button.addEventListener(
         "click",
         () => {
+
             const form =
                 $("#orderForm");
 
@@ -942,9 +1371,13 @@ function setupNewOrderButton() {
             const orderSuccess =
                 $("#orderSuccess");
 
+
+            /* Reset form */
+
             if (form) {
                 form.reset();
             }
+
 
             /* Restore Regular package */
 
@@ -954,7 +1387,9 @@ function setupNewOrderButton() {
                 );
 
             if (regularPackage) {
-                regularPackage.checked = true;
+
+                regularPackage.checked =
+                    true;
 
                 regularPackage.dispatchEvent(
                     new Event("change", {
@@ -963,15 +1398,18 @@ function setupNewOrderButton() {
                 );
             }
 
+
             /* Hide success */
 
             if (orderSuccess) {
                 orderSuccess.hidden = true;
             }
 
-            /* Show order section */
+
+            /* Show order form */
 
             if (orderSection) {
+
                 orderSection.hidden = false;
 
                 orderSection.scrollIntoView({
@@ -980,6 +1418,7 @@ function setupNewOrderButton() {
                 });
             }
 
+
             hideFormMessage();
 
             updateOrderSummary();
@@ -987,11 +1426,13 @@ function setupNewOrderButton() {
     );
 }
 
+
 /* =========================================================
-   20. PRODUCT GALLERY
+   29. PRODUCT GALLERY
 ========================================================= */
 
 function setupProductGallery() {
+
     const mainImage =
         $("#mainProductImage");
 
@@ -1005,10 +1446,13 @@ function setupProductGallery() {
         return;
     }
 
+
     thumbnails.forEach((thumbnail) => {
+
         thumbnail.addEventListener(
             "click",
             () => {
+
                 const image =
                     thumbnail.dataset.image;
 
@@ -1020,33 +1464,40 @@ function setupProductGallery() {
                     return;
                 }
 
+
                 mainImage.src =
                     image;
 
                 mainImage.alt =
                     alt;
 
+
                 thumbnails.forEach(
                     (item) => {
+
                         item.classList.remove(
                             "active"
                         );
                     }
                 );
 
+
                 thumbnail.classList.add(
                     "active"
                 );
             }
         );
+
     });
 }
 
+
 /* =========================================================
-   21. LIGHTBOX
+   30. LIGHTBOX
 ========================================================= */
 
 function setupLightbox() {
+
     const lightbox =
         $("#imageLightbox");
 
@@ -1062,6 +1513,7 @@ function setupLightbox() {
     const mainImageButton =
         $("#mainProductImageButton");
 
+
     if (
         !lightbox ||
         !lightboxImage ||
@@ -1070,14 +1522,17 @@ function setupLightbox() {
         return;
     }
 
+
     function openLightbox() {
+
         lightboxImage.src =
             mainImage.src;
 
         lightboxImage.alt =
             mainImage.alt;
 
-        lightbox.hidden = false;
+        lightbox.hidden =
+            false;
 
         lightbox.setAttribute(
             "aria-hidden",
@@ -1088,14 +1543,18 @@ function setupLightbox() {
             "lightbox-open"
         );
 
+
         requestAnimationFrame(() => {
+
             lightbox.classList.add(
                 "is-visible"
             );
         });
     }
 
+
     function closeLightbox() {
+
         lightbox.classList.remove(
             "is-visible"
         );
@@ -1109,33 +1568,45 @@ function setupLightbox() {
             "lightbox-open"
         );
 
+
         setTimeout(() => {
-            lightbox.hidden = true;
+
+            lightbox.hidden =
+                true;
+
         }, 200);
     }
 
+
     if (mainImageButton) {
+
         mainImageButton.addEventListener(
             "click",
             openLightbox
         );
+
     } else {
+
         mainImage.addEventListener(
             "click",
             openLightbox
         );
     }
 
+
     if (closeButton) {
+
         closeButton.addEventListener(
             "click",
             closeLightbox
         );
     }
 
+
     lightbox.addEventListener(
         "click",
         (event) => {
+
             if (
                 event.target === lightbox
             ) {
@@ -1144,9 +1615,11 @@ function setupLightbox() {
         }
     );
 
+
     document.addEventListener(
         "keydown",
         (event) => {
+
             if (
                 event.key === "Escape" &&
                 !lightbox.hidden
@@ -1157,14 +1630,17 @@ function setupLightbox() {
     );
 }
 
+
 /* =========================================================
-   22. SMOOTH SCROLL
+   31. SMOOTH SCROLL
 ========================================================= */
 
 function setupSmoothScroll() {
+
     document.addEventListener(
         "click",
         (event) => {
+
             const link =
                 event.target.closest(
                     'a[href^="#"]'
@@ -1174,8 +1650,10 @@ function setupSmoothScroll() {
                 return;
             }
 
+
             const targetId =
                 link.getAttribute("href");
+
 
             if (
                 !targetId ||
@@ -1184,16 +1662,20 @@ function setupSmoothScroll() {
                 return;
             }
 
+
             const target =
                 document.querySelector(
                     targetId
                 );
 
+
             if (!target) {
                 return;
             }
 
+
             event.preventDefault();
+
 
             target.scrollIntoView({
                 behavior: "smooth",
@@ -1203,18 +1685,22 @@ function setupSmoothScroll() {
     );
 }
 
+
 /* =========================================================
-   23. IMAGE ERROR HANDLING
+   32. IMAGE ERROR HANDLING
 ========================================================= */
 
 function setupImageFallback() {
+
     const images =
         $$("img");
 
     images.forEach((image) => {
+
         image.addEventListener(
             "error",
             () => {
+
                 image.classList.add(
                     "image-error"
                 );
@@ -1223,33 +1709,49 @@ function setupImageFallback() {
     });
 }
 
+
 /* =========================================================
-   24. META PIXEL — CTA TRACKING
+   33. CTA TRACKING
 ========================================================= */
 
 function setupCTATracking() {
+
     const orderLinks =
         $$('a[href="#order"]');
 
+
     orderLinks.forEach((link) => {
+
         link.addEventListener(
             "click",
             () => {
+
                 trackInitiateCheckout();
             }
         );
     });
 }
 
+
 /* =========================================================
-   25. INITIALIZE
+   34. INITIALISE
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        /* Package system */
+
+        /* =================================================
+           EmailJS
+        ================================================= */
+
+        initialiseEmailJS();
+
+
+        /* =================================================
+           Package system
+        ================================================= */
 
         setupPackageSelection();
 
@@ -1259,46 +1761,67 @@ document.addEventListener(
 
         updateOrderSummary();
 
-        /* Order form */
+
+        /* =================================================
+           Order form
+        ================================================= */
 
         const orderForm =
             $("#orderForm");
 
         if (orderForm) {
+
             orderForm.addEventListener(
                 "submit",
                 handleOrderSubmit
             );
         }
 
-        /* New order */
+
+        /* =================================================
+           New order
+        ================================================= */
 
         setupNewOrderButton();
 
-        /* Product gallery */
+
+        /* =================================================
+           Product gallery
+        ================================================= */
 
         setupProductGallery();
 
         setupLightbox();
 
-        /* Navigation */
+
+        /* =================================================
+           Navigation
+        ================================================= */
 
         setupSmoothScroll();
 
         setupCTATracking();
 
-        /* Meta Pixel */
+
+        /* =================================================
+           Meta + TikTok Pixel
+        ================================================= */
 
         trackViewContent();
 
         setupCheckoutTracking();
 
-        /* Images */
+
+        /* =================================================
+           Images
+        ================================================= */
 
         setupImageFallback();
+
 
         console.log(
             "TPEG Kiddies Store — JavaScript loaded successfully."
         );
+
     }
 );
