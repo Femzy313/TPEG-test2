@@ -3249,3 +3249,17 @@ body.lightbox-open {
     outline-offset: 3px;
 }
 
+
+
+.hero-heading-image {
+    margin: 15px 0 20px;
+}
+
+.hero-heading-image img {
+    display: block;
+    width: 100%;
+    max-width: 700px;
+    height: auto;
+    margin: 0 auto;
+}
+
